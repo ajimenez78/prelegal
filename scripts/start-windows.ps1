@@ -1,5 +1,4 @@
 # Build and start Prelegal in Docker at http://localhost:8000
-$ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 
 $envArgs = @()
