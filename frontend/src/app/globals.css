@@ -105,7 +105,7 @@ body {
 }
 
 .form-panel {
-  overflow-y: auto;
+  min-height: 0;
   padding: 1.5rem;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
@@ -131,6 +131,7 @@ body {
     height: auto;
   }
   .form-panel {
+    height: 60dvh;
     border-right: 0;
     border-bottom: 1px solid var(--color-border);
   }
@@ -142,40 +143,11 @@ body {
   }
 }
 
-/* ---------- Form ---------- */
-
-.form-intro {
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-  margin-bottom: 1.5rem;
-}
-
-.form-group {
-  display: grid;
-  gap: 1rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid var(--color-border);
-}
-
-.form-group > legend {
-  float: left;
-  width: 100%;
-  font-family: var(--font-serif);
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
+/* ---------- Inputs ---------- */
 
 .field {
   display: grid;
   gap: 0.25rem;
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
 }
 
 .field-label {
@@ -183,16 +155,8 @@ body {
   font-weight: 600;
 }
 
-.field-hint {
-  font-size: 0.8125rem;
-  color: var(--color-text-muted);
-}
-
-.nda-form input[type="text"],
-.nda-form input[type="date"],
-.nda-form input[type="number"],
-.nda-form textarea,
-.login-form input {
+.login-form input,
+.chat-input input {
   width: 100%;
   padding: 0.5rem 0.625rem;
   border: 1px solid var(--color-secondary);
@@ -201,51 +165,65 @@ body {
   font-size: 0.9375rem;
 }
 
-.nda-form textarea {
-  resize: vertical;
-  line-height: 1.4;
-}
-
-.nda-form input:focus-visible,
-.nda-form textarea:focus-visible,
 .login-form input:focus-visible,
+.chat-input input:focus-visible,
 .primary-button:focus-visible,
 .header-link:focus-visible {
   outline: 2px solid var(--color-primary-hover);
   outline-offset: 2px;
 }
 
-.nda-form ::placeholder {
+.chat-input ::placeholder {
   color: var(--color-text-muted);
 }
 
-.choice-list {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
+/* ---------- Chat ---------- */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
 }
 
-.choice {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+.chat-log {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.chat-message {
+  max-width: 90%;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--radius-lg);
   font-size: 0.9375rem;
   line-height: 1.5;
+  white-space: pre-wrap;
 }
 
-.choice input[type="radio"] {
-  accent-color: var(--color-primary);
-  translate: 0 1px;
+.chat-message-assistant {
+  justify-self: start;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
 }
 
-.nda-form input.years-input {
-  display: inline-block;
-  width: 3.75rem;
-  padding: 0.125rem 0.375rem;
+.chat-message-user {
+  justify-self: end;
+  background: var(--color-primary);
+  color: var(--color-paper);
 }
 
-.choice label {
-  cursor: pointer;
+.chat-message-pending {
+  justify-self: start;
+  color: var(--color-text-muted);
+}
+
+.chat-input {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* ---------- Login ---------- */

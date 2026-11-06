@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { applyChatUpdates, toChatFields, type ChatUpdates } from "@/lib/chat";
 import {
   createDefaultFormData,
   documentTitle,
   fillCoverPage,
   type NdaFormData,
-  type Party,
 } from "@/lib/nda";
+import { NdaChat } from "./NdaChat";
 import { NdaDocument } from "./NdaDocument";
-import { NdaForm } from "./NdaForm";
 
 function todayIso(): string {
   const now = new Date();
@@ -37,7 +37,7 @@ interface NdaBuilderProps {
 
 export function NdaBuilder({ coverPageTemplate, standardTerms }: NdaBuilderProps) {
   const today = useToday();
-  // An empty effective date means "today" until the user picks one.
+  // An empty effective date means "today" until the chat sets one.
   const [form, setForm] = useState<NdaFormData>(() => createDefaultFormData(""));
   const data = useMemo(
     () => ({ ...form, effectiveDate: form.effectiveDate || today }),
@@ -48,16 +48,8 @@ export function NdaBuilder({ coverPageTemplate, standardTerms }: NdaBuilderProps
     [coverPageTemplate, data],
   );
 
-  function handleChange<K extends keyof NdaFormData>(key: K, value: NdaFormData[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function handlePartyChange(index: 0 | 1, key: keyof Party, value: string) {
-    setForm((prev) => {
-      const parties: [Party, Party] = [...prev.parties];
-      parties[index] = { ...parties[index], [key]: value };
-      return { ...prev, parties };
-    });
+  function handleUpdates(updates: ChatUpdates) {
+    setForm((prev) => applyChatUpdates(prev, updates));
   }
 
   function handleDownload() {
@@ -87,16 +79,9 @@ export function NdaBuilder({ coverPageTemplate, standardTerms }: NdaBuilderProps
           Sign out
         </Link>
       </header>
-      <aside className="form-panel" aria-label="NDA details">
-        <p className="form-intro">
-          Fill in the details and the agreement updates as you type. Leave
-          signatures and dates blank for each party to complete when signing.
-        </p>
-        <NdaForm
-          data={data}
-          onChange={handleChange}
-          onPartyChange={handlePartyChange}
-        />
+      <aside className="form-panel" aria-label="NDA assistant">
+        {/* The raw form is sent so an empty effective date still means "today". */}
+        <NdaChat fields={toChatFields(form)} onUpdates={handleUpdates} />
       </aside>
       <main className="desk">
         <div className="sheet">
