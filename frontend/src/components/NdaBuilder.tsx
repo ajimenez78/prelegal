@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   createDefaultFormData,
@@ -79,9 +80,12 @@ export function NdaBuilder({ coverPageTemplate, standardTerms }: NdaBuilderProps
       <header className="app-header">
         <p className="wordmark">Prelegal</p>
         <h1>Mutual NDA</h1>
-        <button type="button" className="download-button" onClick={handleDownload}>
+        <button type="button" className="primary-button" onClick={handleDownload}>
           Download PDF
         </button>
+        <Link href="/" className="header-link">
+          Sign out
+        </Link>
       </header>
       <aside className="form-panel" aria-label="NDA details">
         <p className="form-intro">

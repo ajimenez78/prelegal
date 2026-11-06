@@ -1,21 +1,24 @@
 # Prelegal frontend
 
-A Next.js app for drafting a Common Paper Mutual NDA. Fill in the form, watch the
-agreement update alongside it, then use **Download PDF** to save it via the
-browser's print dialog.
+The Prelegal web app. `/` is a placeholder sign in screen that posts to the
+backend's `/api/login` stub and continues to `/nda`, where users fill in a Common
+Paper Mutual NDA, watch it update alongside the form, and use **Download PDF**
+to save it via the browser's print dialog.
 
 ## Development
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000
-npm test        # Vitest unit tests for the template-filling logic
+npm run dev     # http://localhost:3000, proxies /api to the backend on :8000
+npm test        # Vitest unit and component tests
 npm run lint
 npm run build
 ```
 
 ## How it works
 
+- `npm run build` produces a static export in `out/`, which the backend serves
+  in production (see the root `Dockerfile`).
 - `src/lib/templates.ts` reads `../templates/Mutual-NDA-coverpage.md` and
   `../templates/Mutual-NDA.md` from the repository root at build time, so the
   templates stay the single source of truth and the page is statically
