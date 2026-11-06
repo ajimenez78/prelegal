@@ -52,9 +52,9 @@ For creating and designing the web interface, use the Pearl web design skill.
 
 ## Current status
 
-Jira: PL-2 to PL-7 are implemented. PL-7, "Support multiple users & final polish", is the last ticket.
+Jira: PL-2 to PL-7 are Done. PL-7, "Support multiple users & final polish", was the last ticket (PR #11). There are no open tickets.
 
-Implemented so far (PL-2 to PL-7):
+Implemented (PL-2 to PL-7):
 - `templates/` and `catalog.json`: the 12 Common Paper templates.
 - Single Docker container (multi-stage `Dockerfile`): FastAPI on port 8000 serves `/api` and the Next.js static export at `/`.
 - Backend (`backend/app/`):
@@ -72,9 +72,9 @@ Implemented so far (PL-2 to PL-7):
   - `lib/api.ts`: the `api()` fetch helper and the `SavedSummary`/`SavedDocument` types. `lib/auth.ts`: `useRequireUser`, which redirects to `/` without a session.
   - `AppHeader.tsx` is the signed-in header (email, sign out) on `/documents/` and the builder.
   - `/draft/` is a new document and `/draft/?id=N` a saved one. `DraftLoader.tsx` reads the id and loads it into the builder.
+  - `DocumentBuilder.tsx` puts the AI chat (`DocumentChat.tsx`) on the left and a live preview (`DocumentPreview.tsx`) on the right. Until a document is chosen, the preview lists the supported agreements.
   - `DocumentBuilder.tsx` autosaves the draft and the chat after each AI reply once a document is chosen: POST first, then PUT. `DocumentChat` awaits `onReply`, so the next message waits for the save. The list title is the company names (`savedTitle`).
   - The "draft, subject to legal review" disclaimer is a banner in the builder (hidden in print) and a note at the top of `DocumentPreview` (printed).
-  - `DocumentBuilder.tsx` puts the AI chat (`DocumentChat.tsx`) on the left and a live preview (`DocumentPreview.tsx`) on the right. The preview is empty until a document is chosen.
   - Document ids are the template filename without `.md`, e.g. `CSA` or `Mutual-NDA`.
   - `lib/templates.ts` reads `../catalog.json` and `../templates` at build time.
   - `lib/documents.ts` turns each catalog entry into a `DocumentInfo`. Party roles default to Provider and Customer. The `ROLES` map lists only the exceptions. Key terms are extracted from the template's `<span class="*_link">` references.
@@ -89,7 +89,7 @@ Implemented so far (PL-2 to PL-7):
   - Pearl tokens are in `globals.css`.
 - The start and stop scripts in `scripts/` are done. The `.env` file is passed with `--env-file` at run time.
 
-Not done yet: no further Jira tickets. Known limits: sessions never expire, the cookie has no `Secure` flag (the app runs on http://localhost), and there is no rate limiting.
+Known limits: sessions never expire, the cookie has no `Secure` flag (the app runs on http://localhost), and there is no rate limiting.
 
 Gotchas:
 - `next.config.ts` cannot use `cacheComponents` or `partialPrefetching`, because PPR is not allowed with `output: "export"`.
