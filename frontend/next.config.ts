@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
   // Production builds are a static export served by the FastAPI backend.
-  // trailingSlash emits nda/index.html so the backend can serve /nda/.
+  // trailingSlash emits draft/index.html so the backend can serve /draft/.
   ...(isDev ? {} : { output: "export", trailingSlash: true }),
   turbopack: {
     rules: {

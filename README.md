@@ -12,19 +12,18 @@ Prelegal produces a complete agreement based on the open
 ## Features
 
 - **Sign in**: a placeholder login screen. Any credentials are accepted for now.
-- **Mutual NDA creator**: fill in the key terms in a form, see the completed
-  Common Paper Mutual NDA update live, and download it as a PDF.
+- **AI drafting chat**: tell the assistant what you need. It picks the right
+  agreement, asks for the parties and key terms, updates the document live, and
+  you download it as a PDF.
 - **Template library**: 12 standard agreements from Common Paper, listed in
   `catalog.json`.
 
 ### Agreement types
 
-Available now: Mutual Non-Disclosure Agreement.
-
-In the template library, coming next: Cloud Service Agreement, Service Level
-Agreement, AI Addendum, Data Processing Agreement, Business Associate
-Agreement, Professional Services Agreement, Software License Agreement, Pilot
-Agreement, Design Partner Agreement and Partnership Agreement.
+All available: Mutual Non-Disclosure Agreement, Cloud Service Agreement,
+Service Level Agreement, AI Addendum, Data Processing Agreement, Business
+Associate Agreement, Professional Services Agreement, Software License
+Agreement, Pilot Agreement, Design Partner Agreement and Partnership Agreement.
 
 ## Repository layout
 
@@ -51,9 +50,10 @@ Open http://localhost:8000.
 ## Usage
 
 1. Sign in with any email and password.
-2. Chat with the assistant about your NDA. It asks for the parties, purpose,
-   terms, governing law and jurisdiction, and fills in the agreement on the
-   right as you answer.
+2. Tell the assistant which agreement you need: any of the 11 Common Paper
+   documents in `catalog.json`. If it can't draft what you ask for, it offers the
+   closest one it can. It then asks for the parties and key terms, and fills
+   in the agreement on the right as you answer.
 3. Click **Download PDF** and save it from the print dialog. Leave the
    signature fields blank for each party to sign.
 
@@ -80,9 +80,10 @@ A single Docker container runs the FastAPI backend on port 8000. It serves the
 API under `/api` and the Next.js site, built as a static export, at `/`. A
 fresh SQLite database with a `users` table is created on every start.
 
-The NDA templates are read from `templates/` at build time, so the templates
-are the single source of truth. Form values are substituted into the template
-placeholders and rendered as Markdown. The PDF is produced with the browser's
+`catalog.json` and `templates/` are read at build time, so they are the single
+source of truth. The Mutual NDA fills its cover page template. The other
+agreements get a generated Key Terms page, built from the terms each template
+references, followed by their standard terms. The PDF is produced with the browser's
 print dialog. See `frontend/README.md` for details.
 
 ## Contributing

@@ -8,7 +8,7 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-Currently only the Mutual NDA document is supported, drafted through an AI chat. See "Current status" below.
+All 11 document types in the catalog are supported, drafted through an AI chat. See "Current status" below.
 
 ## Development process
 
@@ -52,25 +52,31 @@ For creating and designing the web interface, use the Pearl web design skill.
 
 ## Current status
 
-Implemented so far (PL-2, PL-3, PL-4, PL-5):
+Implemented so far (PL-2 to PL-6):
 - `templates/` and `catalog.json`: the 12 Common Paper templates.
 - Single Docker container (multi-stage `Dockerfile`): FastAPI on port 8000 serves `/api` and the Next.js static export at `/`.
 - Backend (`backend/app/`):
   - `main.py`: app factory, lifespan and static mount, which is registered last so `/api` routes win.
   - `db.py`: stdlib `sqlite3`. A fresh DB with a `users` table is created on every start, at `DB_PATH`, default `prelegal.db`.
   - `routers/auth.py`: stub `POST /api/login` that accepts any credentials.
-  - `routers/chat.py`: stateless `POST /api/chat`. It takes the message history and the current flat NDA fields, and calls `client.responses.parse(model="gpt-6-luna", text_format=ChatReply)`. It returns `{reply, updates}`, where an update of `null` means unchanged.
+  - `routers/chat.py`: stateless `POST /api/chat`. The request carries the messages, `documentType` (an id or null), the flat NDA `fields`, the other documents' `terms` as `{term, value}` pairs, and `documents`, the catalog summaries the browser sends. It calls `client.responses.parse(model="gpt-6-luna", text_format=ChatReply)` and returns `{reply, documentType, updates, terms}`.
+    - The AI first identifies the document. For an unsupported request it names the closest supported one and waits for the user to agree.
   - `GET /api/health`.
 - Frontend:
-  - Fake login at `/` (`LoginForm.tsx`) goes to the Mutual NDA builder at `/nda`.
-  - The builder has the AI chat (`NdaChat.tsx`, with a static greeting) on the left and a live preview on the right. `lib/chat.ts` maps the nested `NdaFormData` to and from the flat `party1Company`-style fields and merges updates.
-  - NDA templates are read from `../templates` at build time.
+  - Fake login at `/` (`LoginForm.tsx`) goes to the builder at `/draft`.
+  - `DocumentBuilder.tsx` puts the AI chat (`DocumentChat.tsx`) on the left and a live preview (`DocumentPreview.tsx`) on the right. The preview is empty until a document is chosen.
+  - Document ids are the template filename without `.md`, e.g. `CSA` or `Mutual-NDA`.
+  - `lib/templates.ts` reads `../catalog.json` and `../templates` at build time.
+  - `lib/documents.ts` turns each catalog entry into a `DocumentInfo`. Party roles default to Provider and Customer. The `ROLES` map lists only the exceptions. Key terms are extracted from the template's `<span class="*_link">` references.
+  - The Mutual NDA keeps its real cover page (`lib/nda.ts`). The other 10 documents get a generated Key Terms cover page and signature table (`lib/keyterms.ts`).
+  - `lib/chat.ts`:
+    - `applyReply` applies each AI reply to the `Draft`. Switching documents starts the new document empty.
+    - It also maps `NdaFormData` to and from the flat `party1Company`-style fields.
   - Pearl tokens are in `globals.css`.
 - The start and stop scripts in `scripts/` are done. The `.env` file is passed with `--env-file` at run time.
 
 Not done yet:
 - Real sign up and sign in. The `users` table exists but is unused.
-- Document types other than the Mutual NDA.
 
 Gotchas:
 - `next.config.ts` cannot use `cacheComponents` or `partialPrefetching`, because PPR is not allowed with `output: "export"`.
@@ -80,4 +86,6 @@ Gotchas:
   - `cd frontend && npm test`. Vitest; component tests use a `// @vitest-environment jsdom` comment.
 - `/api/chat` needs `OPENAI_API_KEY`. For a local backend, use `uv run --env-file ../.env uvicorn app.main:app --reload`.
 - The NDA fields are defined twice, in `ChatFields` (`lib/chat.ts`) and in `NdaFields`/`NdaUpdates` (`routers/chat.py`). Keep them in sync.
+- A new template whose parties are not Provider and Customer needs a `ROLES` entry in `lib/documents.ts`. A test checks that every role appears in its template.
+- `htmlToMarkdown` renders every `<span>` in a template as bold. That covers term references and clause headings.
 - The GitHub MCP token cannot merge PRs. Merge with `GH_TOKEN=$(gh auth token --user ajimenez78) gh pr merge <n> --merge`.

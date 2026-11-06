@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { applyChatUpdates, toChatFields, type ChatFields, type ChatUpdates } from "./chat";
+import {
+  applyChatUpdates,
+  applyReply,
+  emptyDraft,
+  toChatFields,
+  type ChatFields,
+  type ChatReply,
+  type ChatUpdates,
+} from "./chat";
 import { createDefaultFormData, type NdaFormData } from "./nda";
 
 function formData(): NdaFormData {
@@ -67,5 +75,50 @@ describe("applyChatUpdates", () => {
     const data = formData();
     applyChatUpdates(data, { ...noUpdates(), party1Company: "Other" });
     expect(data).toEqual(formData());
+  });
+});
+
+describe("applyReply", () => {
+  const reply = (overrides: Partial<ChatReply>): ChatReply => ({
+    reply: "ok",
+    documentType: null,
+    updates: noUpdates(),
+    terms: [],
+    ...overrides,
+  });
+
+  it("starts with no document chosen", () => {
+    expect(emptyDraft().documentId).toBeNull();
+  });
+
+  it("chooses a document and fills its terms in the same turn", () => {
+    const draft = applyReply(
+      emptyDraft(),
+      reply({ documentType: "CSA", terms: [{ term: "Customer", value: "Globex" }] }),
+    );
+    expect(draft.documentId).toBe("CSA");
+    expect(draft.terms).toEqual({ Customer: "Globex" });
+  });
+
+  it("keeps the current document when no document is returned", () => {
+    const start = { ...emptyDraft(), documentId: "CSA", terms: { Customer: "Globex" } };
+    const draft = applyReply(start, reply({ terms: [{ term: "Provider", value: "Acme" }] }));
+    expect(draft.documentId).toBe("CSA");
+    expect(draft.terms).toEqual({ Customer: "Globex", Provider: "Acme" });
+  });
+
+  it("starts the new document empty when switching", () => {
+    const start = { ...emptyDraft(), documentId: "CSA", terms: { Customer: "Globex" } };
+    const draft = applyReply(start, reply({ documentType: "Mutual-NDA" }));
+    expect(draft.documentId).toBe("Mutual-NDA");
+    expect(draft.terms).toEqual({});
+  });
+
+  it("applies NDA updates", () => {
+    const draft = applyReply(
+      { ...emptyDraft(), documentId: "Mutual-NDA" },
+      reply({ updates: { ...noUpdates(), governingLaw: "Delaware" } }),
+    );
+    expect(draft.nda.governingLaw).toBe("Delaware");
   });
 });

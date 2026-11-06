@@ -1,11 +1,12 @@
 # Stage 1: build the Next.js frontend as a static export.
-# The frontend reads ../templates at build time, so both directories are copied
+# The frontend reads ../templates and ../catalog.json at build time, so they are copied
 # side by side.
 FROM node:26-slim AS frontend
 WORKDIR /build/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY templates/ /build/templates/
+COPY catalog.json /build/catalog.json
 COPY frontend/ ./
 RUN npm run build
 

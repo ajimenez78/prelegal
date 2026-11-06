@@ -27,7 +27,7 @@ describe("LoginForm", () => {
 
     signIn("ada@example.com", "secret");
 
-    await vi.waitFor(() => expect(push).toHaveBeenCalledWith("/nda/"));
+    await vi.waitFor(() => expect(push).toHaveBeenCalledWith("/draft/"));
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/login");
     expect(init.method).toBe("POST");
