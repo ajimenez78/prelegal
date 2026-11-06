@@ -2,6 +2,11 @@
 
 A platform for drafting common legal agreements.
 
+Prelegal is for founders, sales teams and anyone who needs a standard business
+agreement without starting from a blank page. You fill in the key terms, and
+Prelegal produces a complete agreement based on the open
+[Common Paper](https://commonpaper.com/standards/) standards, ready to sign.
+
 > **Status: work in progress.** Expected completion: November 12, 2026.
 
 ## Features
@@ -9,8 +14,17 @@ A platform for drafting common legal agreements.
 - **Sign in**: a placeholder login screen. Any credentials are accepted for now.
 - **Mutual NDA creator**: fill in the key terms in a form, see the completed
   Common Paper Mutual NDA update live, and download it as a PDF.
-- **Template library**: 12 standard agreements from Common Paper (NDA, cloud
-  service, DPA, BAA, SLA and more), listed in `catalog.json`.
+- **Template library**: 12 standard agreements from Common Paper, listed in
+  `catalog.json`.
+
+### Agreement types
+
+Available now: Mutual Non-Disclosure Agreement.
+
+In the template library, coming next: Cloud Service Agreement, Service Level
+Agreement, AI Addendum, Data Processing Agreement, Business Associate
+Agreement, Professional Services Agreement, Software License Agreement, Pilot
+Agreement, Design Partner Agreement and Partnership Agreement.
 
 ## Repository layout
 
@@ -33,6 +47,16 @@ scripts/stop-linux.sh      # or stop-mac.sh / stop-windows.ps1
 ```
 
 Open http://localhost:8000.
+
+## Usage
+
+1. Sign in with any email and password.
+2. Fill in the NDA form: purpose, effective date, MNDA term, confidentiality
+   period, governing law, jurisdiction, any modifications, and each party's
+   company, signer, title and notice address. The agreement on the right
+   updates as you type.
+3. Click **Download PDF** and save it from the print dialog. Leave the
+   signature fields blank for each party to sign.
 
 ## Development
 
@@ -61,6 +85,16 @@ The NDA templates are read from `templates/` at build time, so the templates
 are the single source of truth. Form values are substituted into the template
 placeholders and rendered as Markdown. The PDF is produced with the browser's
 print dialog. See `frontend/README.md` for details.
+
+## Contributing
+
+1. Pick or open a ticket, then branch from `main` as
+   `feature/<ticket>-<short-name>` (or `docs/` and `chore/` for other work).
+2. Keep changes small and add tests for new behavior.
+3. Before opening a pull request, run the backend tests, the frontend tests
+   and the linter (see Development), and check the app with the start script.
+4. Write commit messages in the imperative, ending with the ticket key, for
+   example `Add Mutual NDA creator (PL-3)`.
 
 ## License
 
