@@ -60,9 +60,9 @@ class FakeResponses:
 
 
 @pytest.fixture
-def fake(client: TestClient):
+def fake(signed_in: TestClient):
     fake = SimpleNamespace(responses=FakeResponses())
-    client.app.dependency_overrides[get_client] = lambda: fake
+    signed_in.app.dependency_overrides[get_client] = lambda: fake
     return fake.responses
 
 
@@ -152,3 +152,7 @@ def test_chat_rejects_unknown_role(client: TestClient, fake: FakeResponses):
 
 def test_updates_cover_every_field():
     assert NdaUpdates.model_fields.keys() == NdaFields.model_fields.keys()
+
+
+def test_chat_requires_a_session(client: TestClient):
+    assert post_chat(client, [{"role": "user", "content": "Hi"}]).status_code == 401

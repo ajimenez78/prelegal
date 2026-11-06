@@ -1,10 +1,10 @@
 # Prelegal frontend
 
-The Prelegal web app. `/` is a placeholder sign in screen that posts to the
-backend's `/api/login` stub and continues to `/draft`. There, users chat with
-the AI assistant (`/api/chat`) to choose and fill in a Common Paper agreement,
-watch it update alongside the chat, and use **Download PDF** to save it via the
-browser's print dialog.
+The Prelegal web app. Users sign in at `/` or sign up at `/signup`, then land
+on `/documents`, their saved drafts. At `/draft` they chat with the AI assistant
+(`/api/chat`) to choose and fill in a Common Paper agreement, watch it update
+alongside the chat, and use **Download PDF** to save it via the browser's print
+dialog. Each reply autosaves the draft and chat, and `/draft/?id=N` reopens one.
 
 ## Development
 

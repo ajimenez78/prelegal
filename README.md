@@ -11,10 +11,13 @@ Prelegal produces a complete agreement based on the open
 
 ## Features
 
-- **Sign in**: a placeholder login screen. Any credentials are accepted for now.
+- **Accounts**: sign up and sign in with email and password.
 - **AI drafting chat**: tell the assistant what you need. It picks the right
   agreement, asks for the parties and key terms, updates the document live, and
-  you download it as a PDF.
+  you download it as a PDF. Every document is marked as a draft subject to
+  legal review.
+- **Saved documents**: each draft and its chat save as you go. Reopen them
+  from **Your documents** to pick up where you left off.
 - **Template library**: 12 standard agreements from Common Paper, listed in
   `catalog.json`.
 
@@ -49,12 +52,13 @@ Open http://localhost:8000.
 
 ## Usage
 
-1. Sign in with any email and password.
-2. Tell the assistant which agreement you need: any of the 11 Common Paper
+1. Create an account, or sign in. You land on **Your documents**.
+2. Click **New document** and tell the assistant which agreement you need: any of the 11 Common Paper
    documents in `catalog.json`. If it can't draft what you ask for, it offers the
    closest one it can. It then asks for the parties and key terms, and fills
    in the agreement on the right as you answer.
-3. Click **Download PDF** and save it from the print dialog. Leave the
+3. The draft saves after each answer. Open it again from **Your documents**.
+4. Click **Download PDF** and save it from the print dialog. Leave the
    signature fields blank for each party to sign.
 
 ## Development
@@ -78,7 +82,8 @@ The Next dev server proxies `/api` to the backend.
 
 A single Docker container runs the FastAPI backend on port 8000. It serves the
 API under `/api` and the Next.js site, built as a static export, at `/`. A
-fresh SQLite database with a `users` table is created on every start.
+fresh SQLite database (users, sessions and saved documents) is created on every
+start, so accounts and drafts do not survive a restart.
 
 `catalog.json` and `templates/` are read at build time, so they are the single
 source of truth. The Mutual NDA fills its cover page template. The other

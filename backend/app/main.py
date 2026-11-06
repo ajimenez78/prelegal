@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.db import init_db
-from app.routers import auth, chat
+from app.routers import auth, chat, documents
 
 
 @asynccontextmanager
@@ -19,6 +19,7 @@ def create_app(static_dir: Path) -> FastAPI:
     app = FastAPI(title="Prelegal", lifespan=lifespan)
     app.include_router(auth.router)
     app.include_router(chat.router)
+    app.include_router(documents.router)
 
     @app.get("/api/health")
     def health() -> dict[str, str]:

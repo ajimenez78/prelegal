@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
+import { api, type SavedDocument } from "@/lib/api";
 import {
   applyReply,
   emptyDraft,
@@ -10,10 +10,12 @@ import {
   type ChatReply,
   type DocumentSummary,
   type Draft,
+  type Message,
 } from "@/lib/chat";
 import { chatTerms, NDA_ID, type DocumentInfo } from "@/lib/documents";
 import { keyTermsCoverPage, keyTermsTitle } from "@/lib/keyterms";
 import { documentTitle, fillCoverPage } from "@/lib/nda";
+import { AppHeader } from "./AppHeader";
 import { DocumentChat } from "./DocumentChat";
 import { DocumentPreview } from "./DocumentPreview";
 
@@ -48,6 +50,15 @@ function preview(doc: DocumentInfo, draft: Draft, ndaCoverPage: string, today: s
   };
 }
 
+/** A readable title for the documents list: the companies, else the document name. */
+function savedTitle(doc: DocumentInfo, draft: Draft): string {
+  const companies =
+    doc.id === NDA_ID
+      ? draft.nda.parties.map((party) => party.company)
+      : doc.roles.map((role) => draft.terms[role] ?? "");
+  return companies.filter(Boolean).join(" and ") || doc.name;
+}
+
 function summary(doc: DocumentInfo): DocumentSummary {
   return { id: doc.id, name: doc.name, description: doc.description, terms: chatTerms(doc) };
 }
@@ -55,11 +66,16 @@ function summary(doc: DocumentInfo): DocumentSummary {
 interface DocumentBuilderProps {
   documents: DocumentInfo[];
   ndaCoverPage: string;
+  email: string;
+  /** The saved document to continue. Omitted for a new document. */
+  saved?: SavedDocument;
 }
 
-export function DocumentBuilder({ documents, ndaCoverPage }: DocumentBuilderProps) {
+export function DocumentBuilder({ documents, ndaCoverPage, email, saved }: DocumentBuilderProps) {
   const today = useToday();
-  const [draft, setDraft] = useState<Draft>(emptyDraft);
+  const [draft, setDraft] = useState<Draft>(saved?.draft ?? emptyDraft);
+  const [savedId, setSavedId] = useState<number | null>(saved?.id ?? null);
+  const [saveError, setSaveError] = useState("");
   const doc = documents.find((d) => d.id === draft.documentId);
   const shown = doc && preview(doc, draft, ndaCoverPage, today);
 
@@ -71,8 +87,26 @@ export function DocumentBuilder({ documents, ndaCoverPage }: DocumentBuilderProp
     documents: documents.map(summary),
   };
 
-  function handleReply(reply: ChatReply) {
-    setDraft((prev) => applyReply(prev, reply));
+  /** Apply the reply, then save the draft and chat once a document is chosen:
+   * created on the first save, updated after that. */
+  async function handleReply(reply: ChatReply, messages: Message[]) {
+    const next = applyReply(draft, reply);
+    setDraft(next);
+    const nextDoc = documents.find((d) => d.id === next.documentId);
+    if (!nextDoc) return;
+    const body = {
+      documentType: nextDoc.id,
+      title: savedTitle(nextDoc, next),
+      draft: next,
+      messages,
+    };
+    const response = await api(
+      savedId ? `/documents/${savedId}` : "/documents",
+      savedId ? "PUT" : "POST",
+      body,
+    ).catch(() => null);
+    setSaveError(response?.ok ? "" : "Your latest changes could not be saved.");
+    if (response?.ok && !savedId) setSavedId((await response.json()).id);
   }
 
   function handleDownload() {
@@ -92,9 +126,14 @@ export function DocumentBuilder({ documents, ndaCoverPage }: DocumentBuilderProp
 
   return (
     <div className="builder">
-      <header className="app-header">
-        <p className="wordmark">Prelegal</p>
-        <h1>{doc?.name ?? "New document"}</h1>
+      <AppHeader email={email} title={doc?.name ?? "New document"}>
+        {saveError ? (
+          <span className="save-status save-status-error" role="alert">
+            {saveError}
+          </span>
+        ) : (
+          savedId && <span className="save-status">Saved</span>
+        )}
         <button
           type="button"
           className="primary-button"
@@ -103,14 +142,19 @@ export function DocumentBuilder({ documents, ndaCoverPage }: DocumentBuilderProp
         >
           Download PDF
         </button>
-        <Link href="/" className="header-link">
-          Sign out
-        </Link>
-      </header>
+      </AppHeader>
       <aside className="form-panel" aria-label="Document assistant">
-        <DocumentChat context={chatContext} onReply={handleReply} />
+        <DocumentChat
+          context={chatContext}
+          initialMessages={saved?.messages}
+          onReply={handleReply}
+        />
       </aside>
       <main className="desk">
+        <p className="draft-banner" role="note">
+          <strong>Draft only.</strong> Documents created with Prelegal are drafts and are
+          subject to legal review before they are signed or relied on.
+        </p>
         <div className="sheet">
           {shown ? (
             <DocumentPreview
@@ -119,9 +163,15 @@ export function DocumentBuilder({ documents, ndaCoverPage }: DocumentBuilderProp
               standardTerms={doc!.standardTerms}
             />
           ) : (
-            <p className="empty-preview">
-              Tell the assistant which document you need, and it will appear here.
-            </p>
+            <div className="empty-preview">
+              <h2>Your document will appear here</h2>
+              <p>Tell the assistant which agreement you need. You can draft any of these:</p>
+              <ul>
+                {documents.map((d) => (
+                  <li key={d.id}>{d.name}</li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </main>
