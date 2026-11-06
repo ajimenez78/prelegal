@@ -38,8 +38,8 @@ Agreement, Design Partner Agreement and Partnership Agreement.
 
 ## Running
 
-Requires Docker. Optionally put an `OPENAI_API_KEY` in `.env` at the project
-root.
+Requires Docker and an `OPENAI_API_KEY` in `.env` at the project root, which
+the AI chat uses.
 
 ```bash
 scripts/start-linux.sh     # or start-mac.sh / start-windows.ps1
@@ -51,10 +51,9 @@ Open http://localhost:8000.
 ## Usage
 
 1. Sign in with any email and password.
-2. Fill in the NDA form: purpose, effective date, MNDA term, confidentiality
-   period, governing law, jurisdiction, any modifications, and each party's
-   company, signer, title and notice address. The agreement on the right
-   updates as you type.
+2. Chat with the assistant about your NDA. It asks for the parties, purpose,
+   terms, governing law and jurisdiction, and fills in the agreement on the
+   right as you answer.
 3. Click **Download PDF** and save it from the print dialog. Leave the
    signature fields blank for each party to sign.
 
@@ -63,7 +62,7 @@ Open http://localhost:8000.
 Requires Node.js 20 or later and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-cd backend && uv run uvicorn app.main:app --reload   # API on :8000
+cd backend && uv run --env-file ../.env uvicorn app.main:app --reload   # API on :8000
 cd frontend && npm install && npm run dev            # site on :3000
 ```
 

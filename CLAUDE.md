@@ -8,7 +8,7 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-Currently only the Mutual NDA document is supported, with no AI chat yet. See "Current status" below.
+Currently only the Mutual NDA document is supported, drafted through an AI chat. See "Current status" below.
 
 ## Development process
 
@@ -52,29 +52,32 @@ For creating and designing the web interface, use the Pearl web design skill.
 
 ## Current status
 
-Implemented so far (PL-2, PL-3, PL-4):
+Implemented so far (PL-2, PL-3, PL-4, PL-5):
 - `templates/` and `catalog.json`: the 12 Common Paper templates.
 - Single Docker container (multi-stage `Dockerfile`): FastAPI on port 8000 serves `/api` and the Next.js static export at `/`.
 - Backend (`backend/app/`):
   - `main.py`: app factory, lifespan and static mount, which is registered last so `/api` routes win.
   - `db.py`: stdlib `sqlite3`. A fresh DB with a `users` table is created on every start, at `DB_PATH`, default `prelegal.db`.
   - `routers/auth.py`: stub `POST /api/login` that accepts any credentials.
+  - `routers/chat.py`: stateless `POST /api/chat`. It takes the message history and the current flat NDA fields, and calls `client.responses.parse(model="gpt-6-luna", text_format=ChatReply)`. It returns `{reply, updates}`, where an update of `null` means unchanged.
   - `GET /api/health`.
 - Frontend:
   - Fake login at `/` (`LoginForm.tsx`) goes to the Mutual NDA builder at `/nda`.
+  - The builder has the AI chat (`NdaChat.tsx`, with a static greeting) on the left and a live preview on the right. `lib/chat.ts` maps the nested `NdaFormData` to and from the flat `party1Company`-style fields and merges updates.
   - NDA templates are read from `../templates` at build time.
   - Pearl tokens are in `globals.css`.
 - The start and stop scripts in `scripts/` are done. The `.env` file is passed with `--env-file` at run time.
 
 Not done yet:
 - Real sign up and sign in. The `users` table exists but is unused.
-- The AI chat.
 - Document types other than the Mutual NDA.
 
 Gotchas:
 - `next.config.ts` cannot use `cacheComponents` or `partialPrefetching`, because PPR is not allowed with `output: "export"`.
 - Export settings (`output: "export"`, `trailingSlash: true`) apply only to builds. In dev, rewrites proxy `/api` to :8000.
 - Tests:
-  - `cd backend && uv run pytest`. TestClient needs `httpx2`.
+  - `cd backend && uv run pytest`. TestClient needs `httpx2`. Chat tests override the `get_client` dependency with a fake, so no API key is needed.
   - `cd frontend && npm test`. Vitest; component tests use a `// @vitest-environment jsdom` comment.
+- `/api/chat` needs `OPENAI_API_KEY`. For a local backend, use `uv run --env-file ../.env uvicorn app.main:app --reload`.
+- The NDA fields are defined twice, in `ChatFields` (`lib/chat.ts`) and in `NdaFields`/`NdaUpdates` (`routers/chat.py`). Keep them in sync.
 - The GitHub MCP token cannot merge PRs. Merge with `GH_TOKEN=$(gh auth token --user ajimenez78) gh pr merge <n> --merge`.
