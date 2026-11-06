@@ -110,7 +110,7 @@ function multilineField(value: string): string {
 }
 
 /** A value inside a GFM table cell, where `|` would split the cell. */
-function tableField(value: string): string {
+export function tableField(value: string): string {
   return value.trim() ? field(value).replace(/\|/g, "\\|") : "";
 }
 
@@ -132,15 +132,19 @@ const checkbox = (checked: boolean, text: string) =>
 function htmlToMarkdown(template: string): string {
   return template
     .replace(/<label>(.*?)<\/label>/g, "_$1_")
-    .replace(/<span class="coverpage_link">(.*?)<\/span>/g, "**$1**");
+    .replace(/<span[^>]*>(.*?)<\/span>/g, "**$1**");
 }
 
-function signatureTable([p1, p2]: [Party, Party]): string {
+/** Signature block for two parties, headed by their labels. */
+export function signatureTable(
+  [p1, p2]: [Party, Party],
+  [label1, label2] = ["PARTY 1", "PARTY 2"],
+): string {
   const row = (label: string, a = "", b = "") => `| ${label} | ${a} | ${b} |`;
   const partyRow = (label: string, key: keyof Party) =>
     row(label, tableField(p1[key]), tableField(p2[key]));
   return [
-    "| | PARTY 1 | PARTY 2 |",
+    `| | ${label1} | ${label2} |`,
     "|:--- | :----: | :----: |",
     row("Signature"),
     partyRow("Print Name", "name"),
@@ -238,8 +242,11 @@ export function prepareStandardTerms(template: string): string {
 
 /** A filename-friendly document title, used for the saved PDF. */
 export function documentTitle(data: NdaFormData): string {
-  const names = data.parties
-    .map((p) => p.company.replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, ""))
-    .filter(Boolean);
-  return ["Mutual-NDA", ...names].join("-");
+  return fileTitle("Mutual NDA", data.parties.map((p) => p.company));
+}
+
+/** Join a base name and company names into a filename-friendly title. */
+export function fileTitle(base: string, companies: string[]): string {
+  const slug = (text: string) => text.replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
+  return [base, ...companies].map(slug).filter(Boolean).join("-");
 }

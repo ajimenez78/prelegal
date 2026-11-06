@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { ChatFields, ChatUpdates } from "@/lib/chat";
+import type { ChatContext, ChatReply } from "@/lib/chat";
 
 interface Message {
   role: "user" | "assistant";
@@ -11,16 +11,16 @@ interface Message {
 const GREETING: Message = {
   role: "assistant",
   content:
-    "Hi! I'll help you draft a Mutual NDA. Who are the two parties, and what is the agreement for?",
+    "Hi! I'll help you draft a legal agreement. What kind of document do you need?",
 };
 
-interface NdaChatProps {
-  fields: ChatFields;
-  onUpdates: (updates: ChatUpdates) => void;
+interface DocumentChatProps {
+  context: ChatContext;
+  onReply: (reply: ChatReply) => void;
 }
 
-/** Freeform AI chat that asks about the NDA and fills in its fields. */
-export function NdaChat({ fields, onUpdates }: NdaChatProps) {
+/** Freeform AI chat that finds the right document and fills in its fields. */
+export function DocumentChat({ context, onReply }: DocumentChatProps) {
   const [messages, setMessages] = useState<Message[]>([GREETING]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -43,12 +43,12 @@ export function NdaChat({ fields, onUpdates }: NdaChatProps) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history, fields }),
+        body: JSON.stringify({ messages: history, ...context }),
       });
       if (!response.ok) throw new Error(`Chat failed: ${response.status}`);
-      const { reply, updates } = await response.json();
-      onUpdates(updates);
-      setMessages([...history, { role: "assistant", content: reply }]);
+      const reply: ChatReply = await response.json();
+      onReply(reply);
+      setMessages([...history, { role: "assistant", content: reply.reply }]);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

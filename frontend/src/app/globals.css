@@ -143,6 +143,14 @@ body {
   }
 }
 
+.empty-preview {
+  padding: 4rem 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+}
+
 /* ---------- Inputs ---------- */
 
 .field {
@@ -274,14 +282,14 @@ body {
 
 /* ---------- Document ---------- */
 
-.nda-document {
+.document-preview {
   font-family: var(--font-serif), Georgia, serif;
   font-size: 1.0625rem;
   line-height: 1.65;
   color: var(--color-text);
 }
 
-.nda-document h1 {
+.document-preview h1 {
   font-size: 2rem;
   line-height: 1.2;
   font-weight: 600;
@@ -289,7 +297,7 @@ body {
   margin-bottom: 1.5rem;
 }
 
-.nda-document h2 {
+.document-preview h2 {
   font-size: 1.0625rem;
   font-weight: 600;
   font-variant-caps: all-small-caps;
@@ -297,54 +305,54 @@ body {
   margin: 1.5rem 0 0.5rem;
 }
 
-.nda-document h3 {
+.document-preview h3 {
   font-size: 1.125rem;
   font-weight: 600;
   margin: 1.75rem 0 0.25rem;
 }
 
-.nda-document p,
-.nda-document ul,
-.nda-document ol,
-.nda-document table {
+.document-preview p,
+.document-preview ul,
+.document-preview ol,
+.document-preview table {
   margin-bottom: 0.75rem;
 }
 
-.nda-document em {
+.document-preview em {
   color: var(--color-text-muted);
 }
 
-.nda-document a {
+.document-preview a {
   color: inherit;
   text-decoration: underline;
   text-decoration-color: var(--color-border);
   text-underline-offset: 2px;
 }
 
-.nda-document ol {
+.document-preview ol {
   list-style: decimal;
   padding-left: 1.5rem;
 }
 
-.nda-document ol li {
+.document-preview ol li {
   margin-bottom: 0.75rem;
   text-align: justify;
   hyphens: auto;
 }
 
-.nda-document .contains-task-list {
+.document-preview .contains-task-list {
   list-style: none;
   padding: 0;
 }
 
 /* Hanging indent so wrapped lines align with the text, not the box. */
-.nda-document .task-list-item {
+.document-preview .task-list-item {
   padding-left: 1.75em;
   text-indent: -1.75em;
   margin-bottom: 0.25rem;
 }
 
-.nda-checkbox {
+.document-checkbox {
   display: inline-block;
   width: 0.8em;
   height: 0.8em;
@@ -356,7 +364,7 @@ body {
   position: relative;
 }
 
-.nda-checkbox[data-checked="true"]::after {
+.document-checkbox[data-checked="true"]::after {
   content: "";
   position: absolute;
   left: 0.22em;
@@ -369,7 +377,7 @@ body {
 }
 
 /* A filled blank: the user's entry written onto the form's line. */
-.nda-field {
+.document-field {
   color: var(--color-primary);
   border-bottom: 1px dotted var(--color-primary);
   padding: 0 0.125rem;
@@ -377,41 +385,41 @@ body {
   box-decoration-break: clone;
 }
 
-.nda-document table {
+.document-preview table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9375rem;
 }
 
-.nda-document th,
-.nda-document td {
+.document-preview th,
+.document-preview td {
   border-bottom: 1px solid var(--color-border);
   padding: 0.625rem 0.5rem;
   vertical-align: bottom;
 }
 
-.nda-document th:first-child,
-.nda-document td:first-child {
+.document-preview th:first-child,
+.document-preview td:first-child {
   width: 26%;
   color: var(--color-text-muted);
 }
 
-.nda-document th {
+.document-preview th {
   font-variant-caps: all-small-caps;
   letter-spacing: 0.04em;
 }
 
 /* Room to sign by hand. */
-.nda-document tbody tr:first-child td {
+.document-preview tbody tr:first-child td {
   height: 3.5rem;
 }
 
-.nda-document > section > :last-child {
+.document-preview > section > :last-child {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
 
-.nda-standard-terms {
+.document-standard-terms {
   margin-top: 3rem;
   padding-top: 2.5rem;
   border-top: 1px solid var(--color-border);
@@ -444,22 +452,22 @@ body {
     padding: 0;
     box-shadow: none;
   }
-  .nda-document {
+  .document-preview {
     font-size: 11pt;
   }
-  .nda-field {
+  .document-field {
     color: inherit;
     border-bottom: 0;
     padding: 0;
   }
-  .nda-standard-terms {
+  .document-standard-terms {
     break-before: page;
     margin-top: 0;
     padding-top: 0;
     border-top: 0;
   }
-  .nda-document table,
-  .nda-document h3 {
+  .document-preview table,
+  .document-preview h3 {
     break-inside: avoid;
     break-after: avoid;
   }

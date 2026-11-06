@@ -27,7 +27,7 @@ export function LoginForm() {
       setPending(false);
       return;
     }
-    router.push("/nda/");
+    router.push("/draft/");
   }
 
   return (
