@@ -52,6 +52,8 @@ For creating and designing the web interface, use the Pearl web design skill.
 
 ## Current status
 
+Jira: PL-2 to PL-6 are Done. Next is PL-7, "Support multiple users & final polish" (To Do).
+
 Implemented so far (PL-2 to PL-6):
 - `templates/` and `catalog.json`: the 12 Common Paper templates.
 - Single Docker container (multi-stage `Dockerfile`): FastAPI on port 8000 serves `/api` and the Next.js static export at `/`.
@@ -72,11 +74,16 @@ Implemented so far (PL-2 to PL-6):
   - `lib/chat.ts`:
     - `applyReply` applies each AI reply to the `Draft`. Switching documents starts the new document empty.
     - It also maps `NdaFormData` to and from the flat `party1Company`-style fields.
+    - `ChatContext` types what the chat sends with each message.
+  - `chatTerms` (`lib/documents.ts`) is the list the AI collects for each document: its key terms, then each party's signer name, signer title and notice address.
+  - Download PDF uses the browser print dialog. The print CSS hides the chat, and the file is named from the document and the company names (`fileTitle`).
+  - Preview CSS classes are `.document-*`, for example `.document-field` for a filled value.
   - Pearl tokens are in `globals.css`.
 - The start and stop scripts in `scripts/` are done. The `.env` file is passed with `--env-file` at run time.
 
-Not done yet:
+Not done yet (likely PL-7):
 - Real sign up and sign in. The `users` table exists but is unused.
+- Saving drafts. The chat and the draft live only in the browser and are lost on reload.
 
 Gotchas:
 - `next.config.ts` cannot use `cacheComponents` or `partialPrefetching`, because PPR is not allowed with `output: "export"`.
@@ -84,8 +91,12 @@ Gotchas:
 - Tests:
   - `cd backend && uv run pytest`. TestClient needs `httpx2`. Chat tests override the `get_client` dependency with a fake, so no API key is needed.
   - `cd frontend && npm test`. Vitest; component tests use a `// @vitest-environment jsdom` comment.
+  - There is no Vitest config, so the `@/` alias does not resolve in tests. Use relative imports in test files.
+  - jsdom has no `Element.scrollTo`. The chat log scrolls by setting `scrollTop`.
 - `/api/chat` needs `OPENAI_API_KEY`. For a local backend, use `uv run --env-file ../.env uvicorn app.main:app --reload`.
 - The NDA fields are defined twice, in `ChatFields` (`lib/chat.ts`) and in `NdaFields`/`NdaUpdates` (`routers/chat.py`). Keep them in sync.
 - A new template whose parties are not Provider and Customer needs a `ROLES` entry in `lib/documents.ts`. A test checks that every role appears in its template.
 - `htmlToMarkdown` renders every `<span>` in a template as bold. That covers term references and clause headings.
+- The model may not echo ids exactly. It dropped the `.md` from `CSA.md`, which is why ids have no extension. The builder only sends back a `documentType` it recognizes.
+- After renaming or moving a route, run `rm -rf frontend/.next` before `tsc`. Otherwise stale generated types fail the typecheck.
 - The GitHub MCP token cannot merge PRs. Merge with `GH_TOKEN=$(gh auth token --user ajimenez78) gh pr merge <n> --merge`.
