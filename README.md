@@ -7,8 +7,6 @@ agreement without starting from a blank page. You fill in the key terms, and
 Prelegal produces a complete agreement based on the open
 [Common Paper](https://commonpaper.com/standards/) standards, ready to sign.
 
-> **Status: work in progress.** Expected completion: November 12, 2026.
-
 ## Features
 
 - **Accounts**: sign up and sign in with email and password.
