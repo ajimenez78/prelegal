@@ -36,6 +36,10 @@ interface DocumentPreviewProps {
 export function DocumentPreview({ title, coverPage, standardTerms }: DocumentPreviewProps) {
   return (
     <article className="document-preview" aria-label={`${title} preview`}>
+      <p className="document-disclaimer">
+        Draft for review. This document was drafted with Prelegal and is subject to legal
+        review before it is signed or relied on.
+      </p>
       <section>
         <Markdown>{coverPage}</Markdown>
       </section>

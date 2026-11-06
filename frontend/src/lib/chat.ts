@@ -55,6 +55,11 @@ export interface Draft {
   terms: Record<string, string>;
 }
 
+export interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface TermUpdate {
   term: string;
   value: string;

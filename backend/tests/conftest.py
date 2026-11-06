@@ -17,3 +17,9 @@ def db_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def client(db_file: Path, tmp_path: Path):
     with TestClient(create_app(tmp_path / "missing")) as c:
         yield c
+
+
+@pytest.fixture
+def signed_in(client: TestClient) -> TestClient:
+    client.post("/api/signup", json={"email": "ann@example.com", "password": "secret123"})
+    return client

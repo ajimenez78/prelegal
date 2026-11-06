@@ -45,7 +45,11 @@ describe("DocumentChat", () => {
 
     expect(await screen.findByText("Which courts?")).toBeTruthy();
     expect(screen.getByText("Delaware law")).toBeTruthy();
-    expect(onReply).toHaveBeenCalledWith(body);
+    expect(onReply).toHaveBeenCalledWith(body, [
+      expect.objectContaining({ role: "assistant" }),
+      { role: "user", content: "Delaware law" },
+      { role: "assistant", content: "Which courts?" },
+    ]);
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/chat");
     expect(init.method).toBe("POST");
@@ -82,5 +86,19 @@ describe("DocumentChat", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
     send("Hello");
     expect(await screen.findByRole("alert")).toBeTruthy();
+  });
+});
+
+describe("DocumentChat with a saved conversation", () => {
+  afterEach(cleanup);
+
+  it("continues the conversation instead of greeting", () => {
+    const saved = [
+      { role: "assistant" as const, content: "Which document?" },
+      { role: "user" as const, content: "A pilot agreement" },
+    ];
+    render(<DocumentChat context={context} initialMessages={saved} onReply={onReply} />);
+    expect(screen.getByText("A pilot agreement")).toBeTruthy();
+    expect(screen.queryByText(/What kind of document do you need/)).toBeNull();
   });
 });

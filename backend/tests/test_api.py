@@ -18,19 +18,8 @@ def test_health(client: TestClient):
     assert response.json() == {"status": "ok"}
 
 
-def test_login_accepts_any_credentials(client: TestClient):
-    response = client.post("/api/login", json={"email": "a@b.com", "password": "x"})
-    assert response.status_code == 200
-    assert response.json() == {"email": "a@b.com"}
-
-
-def test_login_requires_email_and_password(client: TestClient):
-    response = client.post("/api/login", json={"email": "a@b.com"})
-    assert response.status_code == 422
-
-
-def test_startup_creates_users_table(client: TestClient, db_file: Path):
-    assert "users" in table_names(db_file)
+def test_startup_creates_tables(client: TestClient, db_file: Path):
+    assert {"users", "sessions", "documents"} <= set(table_names(db_file))
 
 
 def test_startup_recreates_database(db_file: Path, tmp_path: Path):

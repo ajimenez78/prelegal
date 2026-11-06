@@ -10,7 +10,9 @@ from fastapi import APIRouter, Depends
 from openai import OpenAI
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/api")
+from app.deps import current_user
+
+router = APIRouter(prefix="/api", dependencies=[Depends(current_user)])
 
 MODEL = "gpt-6-luna"
 NDA_ID = "Mutual-NDA"

@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { ChatContext, ChatReply } from "@/lib/chat";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+import { api } from "@/lib/api";
+import type { ChatContext, ChatReply, Message } from "@/lib/chat";
 
 const GREETING: Message = {
   role: "assistant",
@@ -16,12 +12,16 @@ const GREETING: Message = {
 
 interface DocumentChatProps {
   context: ChatContext;
-  onReply: (reply: ChatReply) => void;
+  /** A saved conversation to continue. A new chat starts with a greeting. */
+  initialMessages?: Message[];
+  /** Receives each reply and the conversation including it. Awaited, so the
+   * user cannot send again until it settles (e.g. while the draft saves). */
+  onReply: (reply: ChatReply, messages: Message[]) => void | Promise<void>;
 }
 
 /** Freeform AI chat that finds the right document and fills in its fields. */
-export function DocumentChat({ context, onReply }: DocumentChatProps) {
-  const [messages, setMessages] = useState<Message[]>([GREETING]);
+export function DocumentChat({ context, initialMessages, onReply }: DocumentChatProps) {
+  const [messages, setMessages] = useState<Message[]>(initialMessages ?? [GREETING]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -40,15 +40,12 @@ export function DocumentChat({ context, onReply }: DocumentChatProps) {
     setPending(true);
     setError("");
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history, ...context }),
-      });
+      const response = await api("/chat", "POST", { messages: history, ...context });
       if (!response.ok) throw new Error(`Chat failed: ${response.status}`);
       const reply: ChatReply = await response.json();
-      onReply(reply);
-      setMessages([...history, { role: "assistant", content: reply.reply }]);
+      const next = [...history, { role: "assistant" as const, content: reply.reply }];
+      setMessages(next);
+      await onReply(reply, next);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
